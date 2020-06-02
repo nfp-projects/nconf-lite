@@ -19,8 +19,7 @@
     "plugabble"
   ],
   "dependencies": {
-    "ini": "^1.3.0",
-    "yargs": "^14.0.0"
+    "ini": "^1.3.0"
   },
   "devDependencies": {
     "async": "^2.6.1",

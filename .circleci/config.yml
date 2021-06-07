@@ -17,8 +17,6 @@ commands:
       - run:
           name: Test
           command: npm test
-      - coverage
-      - save-npm-cache
   save-npm-cache:
     steps:
       - save_cache:

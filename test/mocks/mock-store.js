@@ -1,10 +1,3 @@
-/*
- * mock-store.js: Mock store for ensuring certain operations are actually called.
- *
- * (C) 2011, Charlie Robbins and the Contributors.
- *
- */
-
 var util = require('util'),
     events = require('events'),
     nconf = require('../../lib/nconf');
@@ -36,3 +29,7 @@ Mock.prototype.save = function (value, callback) {
     callback();
   }, 1000);
 };
+
+Mock.prototype.loadSync = function() {
+  return {}
+}

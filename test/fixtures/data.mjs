@@ -1,11 +1,4 @@
-/*
- * data.js: Simple data fixture for configuration test.
- *
- * (C) 2011, Charlie Robbins and the Contributors.
- *
- */
-
-exports.data = {
+export const data = {
   isNull: null,
   literal: 'bazz',
   arr: ['one', 2, true, { value: 'foo' }],
@@ -20,7 +13,7 @@ exports.data = {
   }
 };
 
-exports.merge = {
+export const merge = {
   prop1: 1,
   prop2: [1, 2, 3],
   prop3: {

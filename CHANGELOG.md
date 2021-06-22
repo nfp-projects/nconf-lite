@@ -1,3 +1,9 @@
+v2.0.0 / Tue, 2 Jun 2020
+========================
+
+Completely redesigned and re-written with zero dependencies among other things.
+
+
 v1.0.0 / Tue, 2 Jun 2020
 ========================
 

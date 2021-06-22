@@ -1,14 +1,17 @@
 # nconf-lite
 
-Hierarchical node.js configuration with files, environment variables, and atomic object merging.
+Nconf-lite is a complete re-written design of original nconf with zero dependancy, tiny and fast while maintaining most if not all of the documented features of the old nconf.
 
-This is a fork of nconf without the bloated yargs dependancy.
+It is a hierarchical node.js configuration with files, environment variables, and atomic object merging.
+
+Compared to nconf running at 952KB with over 220 files *installed*, nconf-lite is clocking at measly 42KB with only 11 files of easily reviewable code and a ton more unit test, testing every micro functionality.
 
 ## Example
 Using nconf is easy; it is designed to be a simple key-value store with support for both local and remote storage. Keys are namespaced and delimited by `:`. Let's dive right into sample usage:
 
 ``` js
-  var nconf = require('nconf');
+  import Nconf from 'nconf-lite'
+  const nconf = new Nconf()
 
   //
   // Setup nconf to use (in-order):
@@ -35,11 +38,7 @@ Using nconf is easy; it is designed to be a simple key-value store with support 
   //
   // Save the configuration object to disk
   //
-  nconf.save(function (err) {
-    require('fs').readFile('path/to/your/config.json', function (err, data) {
-      console.dir(JSON.parse(data.toString()))
-    });
-  });
+  nconf.save()
 ```
 
 If you run the above script:
@@ -67,7 +66,8 @@ Configuration management can get complicated very quickly for even trivial appli
 A sane default for this could be:
 
 ``` js
-  var nconf = require('nconf');
+  import Nconf from 'nconf-lite'
+  const nconf = new Nconf()
 
   //
   // 1. any overrides
@@ -93,16 +93,6 @@ A sane default for this could be:
   nconf.file('custom', '/path/to/config.json');
 
   //
-  // Or searching from a base directory.
-  // Note: `name` is optional.
-  //
-  nconf.file(name, {
-    file: 'config.json',
-    dir: 'search/from/here',
-    search: true
-  });
-
-  //
   // 5. Any default values
   //
   nconf.defaults({
@@ -112,17 +102,6 @@ A sane default for this could be:
 
 ## API Documentation
 
-The top-level of `nconf` is an instance of the `nconf.Provider` abstracts this all for you into a simple API.
-
-### nconf.add(name, options)
-Adds a new store with the specified `name` and `options`. If `options.type` is not set, then `name` will be used instead:
-
-``` js
-  nconf.add('supplied', { type: 'literal', store: { 'some': 'config' });
-  nconf.add('user', { type: 'file', file: '/path/to/userconf.json' });
-  nconf.add('global', { type: 'file', file: '/path/to/globalconf.json' });
-```
-
 ### nconf.any(names, callback)
 Given a set of key names, gets the value of the first key found to be truthy. The key names can be given as separate arguments
 or as an array. If the last argument is a function, it will be called with the result; otherwise, the value is returned.
@@ -131,36 +110,21 @@ or as an array. If the last argument is a function, it will be called with the r
   //
   // Get one of 'NODEJS_PORT' and 'PORT' as a return value
   //
-  var port = nconf.any('NODEJS_PORT', 'PORT');
-
-  //
-  // Get one of 'NODEJS_IP' and 'IPADDRESS' using a callback
-  //
-  nconf.any(['NODEJS_IP', 'IPADDRESS'], function(err, value) {
-    console.log('Connect to IP address ' + value);
-  });
+  let port = nconf.any('NODEJS_PORT', 'PORT');
 ```
 
-### nconf.use(name, options)
-Similar to `nconf.add`, except that it can replace an existing store if new options are provided
+### nconf.use(name)
+Fetch a specific store with the specified name.
 
 ``` js
   //
   // Load a file store onto nconf with the specified settings
   //
-  nconf.use('file', { file: '/path/to/some/config-file.json' });
-
+  nconf.file('custom', '/path/to/config.json');
   //
-  // Replace the file store with new settings
+  // Grab the instance and set it to be readonly
   //
-  nconf.use('file', { file: 'path/to/a-new/config-file.json' });
-```
-
-### nconf.remove(name)
-Removes the store with the specified `name.` The configuration stored at that level will no longer be used for lookup(s).
-
-``` js
-  nconf.remove('file');
+  nconf.use('custom').readOnly = true
 ```
 
 ### nconf.required(keys)
@@ -185,10 +149,7 @@ config
   .file( 'oauth', path.resolve( 'configs', 'oauth', config.get( 'OAUTH:MODE' ) + '.json' ) )
   .file( 'app', path.resolve( 'configs', 'app.json' ) )
   .required([ 'LOGS_MODE']) // here you should haveLOGS_MODE, otherwise throw an error
-  .add( 'logs', {
-    type: 'literal',
-    store: require( path.resolve( 'configs', 'logs', config.get( 'LOGS_MODE' ) + '.js') )
-  } )
+  .literal( 'logs', require( path.resolve( 'configs', 'logs', config.get( 'LOGS_MODE' ) + '.js') ))
   .defaults( defaults );
 ```
 
@@ -215,9 +176,6 @@ If this option is enabled, all calls to `nconf.get()` must pass in a lowercase s
 ##### `parseValues: {true|false}` (default: `false`)
 Attempt to parse well-known values (e.g. 'false', 'true', 'null', 'undefined', '3', '5.1' and JSON values)
 into their proper types. If a value cannot be parsed, it will remain a string.
-
-#### `readOnly: {true|false}` (defaultL `true`)
-Allow values in the env store to be updated in the future. The default is to not allow items in the env store to be updated.
 
 ##### `transform: function(obj)`
 Pass each key/value pair to the specified function for transformation.
@@ -248,9 +206,9 @@ If the return value is falsey, the entry will be dropped from the store, otherwi
   //
   // Can also specify a separator for nested keys (instead of the default ':')
   //
-  nconf.env('__');
+  nconf.env({ separator: '__' });
   // Get the value of the env variable 'database__host'
-  var dbHost = nconf.get('database:host');
+  let dbHost = nconf.get('database:host');
 
   //
   // Can also lowerCase keys.
@@ -260,10 +218,10 @@ If the return value is falsey, the entry will be dropped from the store, otherwi
 
   // Given an environment variable PORT=3001
   nconf.env();
-  var port = nconf.get('port') // undefined
+  let port = nconf.get('port') // undefined
 
   nconf.env({ lowerCase: true });
-  var port = nconf.get('port') // 3001
+  let port = nconf.get('port') // 3001
 
   //
   // Or use all options
@@ -281,7 +239,7 @@ If the return value is falsey, the entry will be dropped from the store, otherwi
       return obj;
     }
   });
-  var dbHost = nconf.get('database:host');
+  let dbHost = nconf.get('database:host');
 ```
 
 ### Literal
@@ -294,7 +252,7 @@ Loads a given object literal into the configuration hierarchy. Both `nconf.defau
 ```
 
 ### File
-Based on the Memory store, but provides additional methods `.save()` and `.load()` which allow you to read your configuration to and from file. As with the Memory store, all method calls are synchronous with the exception of `.save()` and `.load()` which take callback functions.
+Based on the Memory store, but provides additional methods `.save()` and `.load()` which allow you to read your configuration to and from file. As with the Memory store, all method calls are synchronous includ `.save()` and `.load()`.
 
 It is important to note that setting keys in the File engine will not be persisted to disk until a call to `.save()` is made. Note a custom key must be supplied as the first parameter for hierarchy to work if multiple files are used.
 
@@ -303,6 +261,10 @@ It is important to note that setting keys in the File engine will not be persist
   // add multiple files, hierarchically. notice the unique key for each file
   nconf.file('user', 'path/to/your/user.json');
   nconf.file('global', 'path/to/your/global.json');
+
+  // Set a variable in the user store and save it
+  nconf.user('user').set('some:variable', true)
+  nconf.user('user').save()
 ```
 
 The file store is also extensible for multiple file formats, defaulting to `JSON`. To use a custom format, simply pass a format object to the `.use()` method. This object must have `.parse()` and `.stringify()` methods just like the native `JSON` object.
@@ -311,7 +273,7 @@ If the file does not exist at the provided path, the store will simply be empty.
 
 #### Encrypting file contents
 
-As of `nconf@0.8.0` it is now possible to encrypt and decrypt file contents using the `secure` option:
+Encryption and decrypting file contents using the `secure` option:
 
 ``` js
 nconf.file('secure-file', {
@@ -340,31 +302,9 @@ This will encrypt each key using [`crypto.createCipheriv`](https://nodejs.org/ap
 }
 ```
 
-### Redis
-There is a separate Redis-based store available through [nconf-redis][0]. To install and use this store simply:
-
-``` bash
-  $ npm install nconf
-  $ npm install nconf-redis
-```
-
-Once installing both `nconf` and `nconf-redis`, you must require both modules to use the Redis store:
-
-``` js
-  var nconf = require('nconf');
-
-  //
-  // Requiring `nconf-redis` will extend the `nconf`
-  // module.
-  //
-  require('nconf-redis');
-
-  nconf.use('redis', { host: 'localhost', port: 6379, ttl: 60 * 60 * 1000 });
-```
-
 ## Installation
 ``` bash
-  npm install nconf --save
+  npm install nconf-lite --save
 ```
 
 ## Run Tests
@@ -374,7 +314,8 @@ Tests are written in vows and give complete coverage of all APIs and storage eng
   $ npm test
 ```
 
-#### Author: [Charlie Robbins](http://nodejitsu.com)
+#### Original author: [Charlie Robbins](http://nodejitsu.com)
+#### Rewriter of all that garbage: TheThing
 #### License: MIT
 
-[0]: http://github.com/indexzero/nconf-redis
+[0]: http://github.com/nfp-projects/nconf-lite

@@ -4,13 +4,13 @@ import fs from 'fs'
 import path from 'path'
 import { exec as ex } from 'child_process'
 import { fileURLToPath } from 'url'
-import nconf from '../lib/nconf.js'
+import Nconf from '../lib/nconf.mjs'
 
 
 let __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export function assertMerged(err, merged) {
-  merged = merged instanceof nconf.Provider
+  merged = merged instanceof Nconf
     ? merged.store.store
     : merged;
 
@@ -40,7 +40,7 @@ export function cp(from, to) {
   })
 };
 
-export function exec(script, prefix = 'node') {
+/*export function exec(script, prefix = 'node') {
   let command = `${prefix} ${script}`
   return new Promise(function(res, rej) {
     ex(command,
@@ -57,7 +57,7 @@ export function exec(script, prefix = 'node') {
       }
     )
   })
-}
+}*/
 
 export function fixture(file) {
   return path.resolve(path.join(__dirname, 'fixtures', file));

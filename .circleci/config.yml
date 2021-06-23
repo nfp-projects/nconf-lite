@@ -16,7 +16,12 @@ commands:
 jobs:
   node-v14:
     docker:
-      - image: node:14
+      - image: node:14-alpine
+    steps:
+      - test-nodejs
+  node-v16:
+    docker:
+      - image: node:16-alpine
     steps:
       - test-nodejs
 
@@ -25,3 +30,4 @@ workflows:
   node-multi-build:
     jobs:
       - node-v14
+      - node-v16

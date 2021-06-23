@@ -4,7 +4,7 @@ Nconf-lite is a complete re-written design of original nconf with zero dependanc
 
 It is a hierarchical node.js configuration with files, environment variables, and atomic object merging.
 
-Compared to nconf running at 952KB with over 220 files *installed*, nconf-lite is clocking at measly 42KB with only 11 files of easily reviewable code and a ton more unit test, testing every micro functionality.
+Compared to nconf running at 952KB with over 220 files *installed*, nconf-lite is clocking at measly 42KB with only 11 files of easily reviewable code and a ton more unit test, testing almost every micro functionality.
 
 ## Example
 Using nconf is easy; it is designed to be a simple key-value store with support for both local and remote storage. Keys are namespaced and delimited by `:`. Let's dive right into sample usage:
